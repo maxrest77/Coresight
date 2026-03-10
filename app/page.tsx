@@ -7,10 +7,12 @@ import ClinicalImpact from "@/components/LandingPage/ClinicalImpact";
 import Disclaimer from "@/components/LandingPage/Disclaimer";
 import CTA from "@/components/LandingPage/CTA";
 import SecondaryBackgroundVideo from "@/components/SecondaryBackgroundVideo";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Home() {
   return (
     <main className="min-h-screen relative">
+      <ScrollToTop />
       <SecondaryBackgroundVideo />
       <Navbar />
       <HeroSection />

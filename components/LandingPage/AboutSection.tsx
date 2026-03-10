@@ -17,7 +17,7 @@ export default function AboutSection() {
                         About CoreSight AI
                     </h2>
                     <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                        CoreSight AI is an advanced preventive health platform utilizing artificial intelligence to assess Liver and Pancreas health risks.
+                        CoreSight AI is an advanced preventive health platform utilizing artificial intelligence to assess Pancreas health risks.
                         By analyzing key biomarkers and clinical data, we provide data-driven insights to assist in early detection and preventive care.
                         This tool is designed to support, not replace, professional medical diagnosis.
                     </p>

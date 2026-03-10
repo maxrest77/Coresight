@@ -24,14 +24,9 @@ export default function CTA() {
                         <p className="text-lg text-[#9aa2a6] dark:text-slate-300">
                             Join thousands of patients and providers using CoreSight for proactive health management.
                         </p>
-                        <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-                            <Link href="/register?type=liver">
+                        <div className="flex justify-center lg:justify-start">
+                            <Link href="/pancreas-scan">
                                 <Button className="h-12 px-8 text-lg bg-cyan-500 hover:bg-cyan-600 text-white rounded-full shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-shadow">
-                                    Start Liver Assessment
-                                </Button>
-                            </Link>
-                            <Link href="/register?type=pancreas">
-                                <Button variant="outline" className="h-12 px-8 text-lg border-amber-500/50 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 rounded-full">
                                     Start Pancreas Assessment
                                 </Button>
                             </Link>

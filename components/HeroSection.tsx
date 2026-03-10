@@ -96,7 +96,7 @@ export default function HeroSection() {
                         animate={controls}
                         className="text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed"
                     >
-                        AI-Powered Early Liver Risk Detection. Explore the body map to understand your health better.
+                        AI-Powered Early Pancreas Risk Detection.
                     </motion.p>
 
                     <div className="flex gap-4 justify-center">

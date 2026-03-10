@@ -14,7 +14,7 @@ function RegisterForm() {
     const { login } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
-    const type = searchParams.get("type"); // 'liver' or 'pancreas'
+    const type = searchParams.get("type"); // 'pancreas'
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");

@@ -22,10 +22,8 @@ export default function BodyDiagram() {
     }, []);
 
     const handleRegionClick = (region: string) => {
-        if (region === "Liver") {
-            router.push("/liver-info");
-        } else if (region === "Pancreas") {
-            router.push("/pancreas-info");
+        if (region === "Pancreas") {
+            router.push("/pancreas-scan");
         } else {
             console.log(`Clicked on ${region}`);
         }

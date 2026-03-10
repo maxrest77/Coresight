@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
@@ -9,12 +9,12 @@ import { Button } from "./ui/Button";
 
 export default function Navbar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { isAuthenticated, logout } = useAuth();
 
     const links = [
         { href: "/", label: "Home" },
-        { href: "/liver-info", label: "Liver Health" },
-        { href: "/pancreas-info", label: "Pancreas Health" },
+        { href: "/pancreas-scan", label: "CoreSight AI" },
     ];
 
     return (
@@ -52,7 +52,10 @@ export default function Navbar() {
                                 </Button>
                             </Link>
                             <Button
-                                onClick={logout}
+                                onClick={() => {
+                                    logout();
+                                    router.push('/');
+                                }}
                                 variant="ghost"
                                 className="text-sm h-9 px-4 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400"
                             >

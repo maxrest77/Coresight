@@ -33,8 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const navItems = [
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-        { icon: Activity, label: "Liver Assessment", href: "/dashboard?assessment=liver" },
-        { icon: Activity, label: "Pancreas Assessment", href: "/dashboard?assessment=pancreas" },
+        { icon: Activity, label: "CoreSight AI Scanner", href: "/pancreas-scan" },
         { icon: FileText, label: "Reports", href: "/dashboard/reports" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ];
