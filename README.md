@@ -2,7 +2,7 @@
 
 An advanced preventive health platform utilizing artificial intelligence to assess Liver and Pancreas health risks through biomarker analysis and clinical data insights.
 
-## 🚀 Features
+##  Features
 
 - **AI-Powered Early Detection**: Advanced algorithms analyze biomarkers for liver and pancreas risk assessment
 - **Interactive Body Diagram**: Visual exploration of organ health with clickable regions
@@ -13,7 +13,7 @@ An advanced preventive health platform utilizing artificial intelligence to asse
 - **Educational Content**: Comprehensive information about liver and pancreas health
 - **Clinical Impact Analysis**: Data-driven insights for preventive care
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **Frontend Framework**: Next.js 14 with App Router
 - **Language**: TypeScript
@@ -28,7 +28,7 @@ An advanced preventive health platform utilizing artificial intelligence to asse
 - Node.js 18 or higher
 - Package manager: npm, yarn, pnpm, or bun
 
-## 🔧 Installation
+##  Installation
 
 1. **Clone the repository**
    ```bash
@@ -60,7 +60,7 @@ An advanced preventive health platform utilizing artificial intelligence to asse
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
 
-## 📖 Usage
+##  Usage
 
 ### For Users
 - **Landing Page**: Learn about CoreSight AI and its capabilities
@@ -153,4 +153,3 @@ For questions, issues, or contributions:
 
 ---
 
-Built with ❤️ using Next.js and TypeScript
