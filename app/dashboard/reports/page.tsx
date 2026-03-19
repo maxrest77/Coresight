@@ -4,26 +4,72 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/Card";
 import { 
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-    BarChart, Bar, Legend
+    BarChart, Bar
 } from "recharts";
-import { FileBarChart, Activity, ShieldAlert, CheckCircle2 } from "lucide-react";
-
-const scanVolumeData = [
-  { name: 'Jan', scans: 145 },
-  { name: 'Feb', scans: 182 },
-  { name: 'Mar', scans: 224 },
-  { name: 'Apr', scans: 278 },
-  { name: 'May', scans: 312 },
-  { name: 'Jun', scans: 342 },
-];
-
-const diagnosticDistribution = [
-  { name: 'Normal', value: 840, fill: '#10b981' }, // emerald-500
-  { name: 'High Risk (Tumor)', value: 124, fill: '#f43f5e' }, // rose-500
-  { name: 'Inconclusive', value: 36, fill: '#f59e0b' }, // amber-500
-];
+import { FileBarChart, Activity, ShieldAlert, CheckCircle2, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { getScanHistory, ScanRecord } from "@/lib/firestoreService";
+import { useEffect, useState, useMemo } from "react";
 
 export default function ReportsPage() {
+    const { user } = useAuth();
+    const [scans, setScans] = useState<ScanRecord[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!user) return;
+        getScanHistory(user.uid).then(setScans).finally(() => setLoading(false));
+    }, [user]);
+
+    // Derived statistics
+    const stats = useMemo(() => {
+        if (!scans.length) return { total: 0, normalPct: 0, highRiskPct: 0, avgConfidence: 0, distributions: [], volume: [] };
+
+        let normalCount = 0;
+        let highRiskCount = 0;
+        let totalConfidence = 0;
+
+        // Count distribution
+        scans.forEach(s => {
+            if (s.diagnosis === s.positive_class) highRiskCount++;
+            else normalCount++;
+            totalConfidence += s.confidence;
+        });
+
+        const total = scans.length;
+        
+        // Volume data grouped by month
+        const monthCounts: Record<string, number> = {};
+        scans.forEach(s => {
+            const date = new Date(s.timestamp);
+            const month = date.toLocaleString('default', { month: 'short' });
+            monthCounts[month] = (monthCounts[month] || 0) + 1;
+        });
+
+        const volume = Object.entries(monthCounts)
+            .map(([name, count]) => ({ name, scans: count }))
+            .reverse(); // assuming history comes back newest first, we reverse to show chronological
+
+        return {
+            total,
+            normalPct: (normalCount / total) * 100,
+            highRiskPct: (highRiskCount / total) * 100,
+            avgConfidence: (totalConfidence / total) * 100,
+            distributions: [
+                { name: 'Normal', value: normalCount, fill: '#10b981' },
+                { name: 'High Risk', value: highRiskCount, fill: '#f43f5e' },
+            ],
+            volume
+        };
+    }, [scans]);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+                <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+            </div>
+        );
+    }
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div>
@@ -43,7 +89,7 @@ export default function ReportsPage() {
                         <Activity className="w-5 h-5" />
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">1,000</div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.total}</div>
                         <div className="text-sm text-slate-500">Total Scans Processed</div>
                     </div>
                 </Card>
@@ -52,7 +98,7 @@ export default function ReportsPage() {
                         <CheckCircle2 className="w-5 h-5" />
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">84%</div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.normalPct.toFixed(1)}%</div>
                         <div className="text-sm text-slate-500">Normal Diagnoses</div>
                     </div>
                 </Card>
@@ -61,15 +107,15 @@ export default function ReportsPage() {
                         <ShieldAlert className="w-5 h-5" />
                     </div>
                     <div>
-                        <div className="text-2xl font-bold text-slate-900 dark:text-white">12.4%</div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.highRiskPct.toFixed(1)}%</div>
                         <div className="text-sm text-slate-500">High Risk Flags</div>
                     </div>
                 </Card>
                 <Card className="p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 flex flex-col justify-center">
                     <div className="text-sm text-slate-500 mb-1">Average AI Confidence</div>
-                    <div className="text-2xl font-bold text-slate-900 dark:text-white">96.8%</div>
+                    <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.avgConfidence.toFixed(1)}%</div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 mt-2 rounded-full overflow-hidden">
-                        <div className="bg-cyan-500 h-full w-[96.8%]" />
+                        <div className="bg-cyan-500 h-full" style={{ width: `${stats.avgConfidence}%` }} />
                     </div>
                 </Card>
             </div>
@@ -81,7 +127,7 @@ export default function ReportsPage() {
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Scan Volume Over Time</h3>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={scanVolumeData} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
+                            <LineChart data={stats.volume} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} vertical={false} />
                                 <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
@@ -107,7 +153,7 @@ export default function ReportsPage() {
                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Diagnostic Distribution</h3>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={diagnosticDistribution} margin={{ top: 5, right: 30, left: -20, bottom: 5 }} layout="vertical">
+                            <BarChart data={stats.distributions} margin={{ top: 5, right: 30, left: -20, bottom: 5 }} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} horizontal={true} vertical={false} />
                                 <XAxis type="number" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} width={100} />

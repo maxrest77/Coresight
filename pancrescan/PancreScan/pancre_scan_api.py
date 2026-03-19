@@ -222,8 +222,11 @@ async def predict(
 
     with torch.set_grad_enabled(heatmap):
         logits = bundle.predict_logits(input_tensor)
-        probs = torch.softmax(logits, dim=1)
+        temperature = 2.0
+        scaled_logits = logits / temperature
+        probs = torch.softmax(scaled_logits, dim=1)
         pos_prob = probs[0, bundle.positive_index].item()
+        pos_prob = min(pos_prob, 0.995)
 
     inference_ms = (time.perf_counter() - start) * 1000.0
     diagnosis = (

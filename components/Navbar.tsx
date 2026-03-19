@@ -52,9 +52,9 @@ export default function Navbar() {
                                 </Button>
                             </Link>
                             <Button
-                                onClick={() => {
-                                    logout();
-                                    router.push('/');
+                                onClick={async () => {
+                                    await logout();
+                                    router.push("/");
                                 }}
                                 variant="ghost"
                                 className="text-sm h-9 px-4 text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400"

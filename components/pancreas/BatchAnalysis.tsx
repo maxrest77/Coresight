@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/Button";
 import { Upload, FileBox, X, CheckCircle2, AlertTriangle, Loader2, Download } from "lucide-react";
 import { useState, useRef } from "react";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { saveScanResult } from "@/lib/firestoreService";
 
 interface BatchItem {
   id: string;
@@ -18,6 +20,7 @@ interface BatchItem {
 }
 
 export function BatchAnalysis() {
+  const { user } = useAuth();
   const [items, setItems] = useState<BatchItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +92,19 @@ export function BatchAnalysis() {
                 status: 'success', 
                 result: data 
             } : p));
+
+            // Save to Firestore (non-blocking)
+            if (user) {
+                saveScanResult(user.uid, {
+                    organ: "pancreas",
+                    diagnosis: data.diagnosis,
+                    confidence: data.confidence,
+                    inference_ms: data.inference_ms,
+                    positive_class: data.positive_class,
+                    positive_threshold: data.positive_threshold,
+                    heatmap_png_base64: data.heatmap_png_base64,
+                }).catch(err => console.error("Batch save failed for", item.file.name, err));
+            }
 
         } catch (error: any) {
             setItems(prev => prev.map(p => p.id === item.id ? { 

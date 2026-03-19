@@ -42,3 +42,19 @@ next-env.d.ts
 
 # datasets
 datasets/
+
+# Firebase / Secrets
+lib/firebase.ts
+.firebaserc
+firebase.json
+
+# Python AI model artifacts
+pancrescan/PancreScan/*.pt
+pancrescan/PancreScan/*.pth
+pancrescan/PancreScan/*.pkl
+pancrescan/PancreScan/__pycache__/
+pancrescan/PancreScan/.venv/
+pancrescan/PancreScan/venv/
+
+# VSCode local settings
+.vscode/

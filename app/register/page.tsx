@@ -11,7 +11,7 @@ import Navbar from "@/components/Navbar";
 
 // Separate component to wrap in Suspense because useSearchParams causes hydration mismatch if not handled properly in some Next.js versions/configs
 function RegisterForm() {
-    const { login } = useAuth();
+    const { register } = useAuth();
     const router = useRouter();
     const searchParams = useSearchParams();
     const type = searchParams.get("type"); // 'pancreas'
@@ -20,15 +20,43 @@ function RegisterForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleRegister = (e: React.FormEvent) => {
+    const [error, setError] = useState<string | null>(null);
+
+    const getFriendlyErrorMessage = (errorCode: string) => {
+        switch (errorCode) {
+            case "auth/email-already-in-use":
+                return "This email is already registered. Please sign in instead.";
+            case "auth/invalid-email":
+                return "Please enter a valid email address.";
+            case "auth/weak-password":
+                return "Password is too weak. Please use at least 6 characters.";
+            case "auth/network-request-failed":
+                return "Network error. Please check your connection.";
+            default:
+                return "Failed to create account. Please try again.";
+        }
+    };
+
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
-        login();
-        // In a real app, send type to backend
-        router.push(type ? `/dashboard?assessment=${type}` : "/dashboard");
+        setError(null);
+        try {
+            await register(email, password, name);
+            router.push(type ? `/dashboard?assessment=${type}` : "/dashboard");
+        } catch (err: any) {
+            setError(getFriendlyErrorMessage(err.code));
+        }
     };
 
     return (
-        <form onSubmit={handleRegister} className="space-y-6">
+        <>
+            {error && (
+                <div className="mb-6 p-3 bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-500 text-sm text-center">
+                    {error}
+                </div>
+            )}
+
+            <form onSubmit={handleRegister} className="space-y-6">
             <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Full Name
@@ -70,6 +98,7 @@ function RegisterForm() {
                 Start Assessment
             </Button>
         </form>
+        </>
     );
 }
 

@@ -8,12 +8,26 @@ import { BatchAnalysis } from "@/components/pancreas/BatchAnalysis";
 import { ScanHistory } from "@/components/pancreas/ScanHistory";
 import { Activity, Layers, History, ShieldAlert } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function PancreasScanPage() {
+function PancreasScanContent() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState("single");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["single", "batch", "history"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (val: string) => {
+    setActiveTab(val);
+    router.replace(`/pancreas-scan?tab=${val}`, { scroll: false });
+  };
 
   if (!isAuthenticated) {
     return (
@@ -121,7 +135,7 @@ export default function PancreasScanPage() {
            transition={{ delay: 0.1 }}
            className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800 p-6 md:p-8"
         >
-          <Tabs defaultValue="single" className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsList className="w-full max-w-md mx-auto grid grid-cols-3 mb-8 bg-slate-100 dark:bg-slate-800">
               <TabsTrigger value="single" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-amber-600 dark:data-[state=active]:text-amber-400 flex items-center gap-2">
                 <Activity className="w-4 h-4" /> 
@@ -159,5 +173,13 @@ export default function PancreasScanPage() {
         </motion.div>
       </div>
     </main>
+  );
+}
+
+export default function PancreasScanPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center pt-24" />}>
+      <PancreasScanContent />
+    </Suspense>
   );
 }

@@ -16,6 +16,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/Button";
+import { NotificationProvider } from "@/context/NotificationContext";
+import NotificationBell from "@/components/NotificationBell";
+import NotificationToast from "@/components/NotificationToast";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, logout } = useAuth();
@@ -39,15 +42,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
-            {/* Sidebar */}
+        <NotificationProvider>
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
+                {/* Sidebar */}
             <motion.aside
                 initial={false}
                 animate={{ width: isSidebarOpen ? 280 : 80 }}
                 className="fixed left-0 top-0 bottom-0 z-40 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-white/10 hidden md:flex flex-col"
             >
                 <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-white/5">
-                    <Link href="/dashboard" className={`font-bold text-xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-500 overflow-hidden whitespace-nowrap ${!isSidebarOpen && "hidden"}`}>
+                    <Link href="/" className={`font-bold text-xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-500 overflow-hidden whitespace-nowrap ${!isSidebarOpen && "hidden"}`}>
                         CoreSight AI
                     </Link>
                     {!isSidebarOpen && (
@@ -77,7 +81,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                     <Button
                         variant="ghost"
-                        onClick={logout}
+                        onClick={async () => {
+                            await logout();
+                            router.push("/login");
+                        }}
                         className={`w-full justify-start gap-3 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 ${!isSidebarOpen && "px-2 justify-center"}`}
                     >
                         <LogOut size={20} />
@@ -92,6 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 dark:border-white/5 px-6 flex items-center justify-between">
                     <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Dashboard</h1>
                     <div className="flex items-center gap-4">
+                        <NotificationBell />
                         <ThemeToggle />
                         <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
                             <User size={16} className="text-slate-500" />
@@ -103,6 +111,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {children}
                 </div>
             </main>
+            <NotificationToast />
         </div>
+        </NotificationProvider>
     );
 }
