@@ -55,6 +55,15 @@ pancrescan/PancreScan/*.pkl
 pancrescan/PancreScan/__pycache__/
 pancrescan/PancreScan/.venv/
 pancrescan/PancreScan/venv/
+pancrescan/__pycache__/
+pancrescan/unet_pipeline/__pycache__/
+
+# Datasets and Medical Volumetrics [LICENSED - DO NOT PUSH]
+DATASET/
+pancrescan/Task07_Pancreas/
+pancrescan/data/
+pancrescan/dataset.zip
+pancrescan/._Task07_Pancreas/
 
 # VSCode local settings
 .vscode/

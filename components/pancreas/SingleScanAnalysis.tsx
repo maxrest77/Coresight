@@ -19,9 +19,11 @@ interface PatientInfo {
 interface PredictionResult {
   diagnosis: string;
   confidence: number;
+  entropy: number;
   inference_ms: number;
   positive_class: string;
   positive_threshold: number;
+  warning?: string | null;
   heatmap_png_base64?: string;
 }
 
@@ -147,6 +149,7 @@ export function SingleScanAnalysis() {
   };
 
   const isTumor = result && result.diagnosis === result.positive_class;
+  const isInconclusive = result && result.diagnosis === "inconclusive";
 
   // ─── Step 1: Patient Intake ──────────────────────────────────────────────────
   if (step === 1) {
@@ -363,17 +366,35 @@ export function SingleScanAnalysis() {
           ) : (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {/* Status Card */}
-              <Card className={`p-6 border-l-4 ${isTumor ? "border-l-rose-500 bg-rose-500/5 dark:bg-rose-500/10" : "border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10"}`}>
+              <Card className={`p-6 border-l-4 ${
+                isInconclusive
+                  ? "border-l-amber-500 bg-amber-500/5 dark:bg-amber-500/10"
+                  : isTumor
+                    ? "border-l-rose-500 bg-rose-500/5 dark:bg-rose-500/10"
+                    : "border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-500/10"
+              }`}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className={`flex items-center gap-2 text-xl font-bold mb-2 ${isTumor ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                      {isTumor ? <AlertTriangle className="w-6 h-6" /> : <CheckCircle2 className="w-6 h-6" />}
-                      {isTumor ? "Tumor Detected" : "Normal Patterns"}
+                    <div className={`flex items-center gap-2 text-xl font-bold mb-2 ${
+                      isInconclusive
+                        ? "text-amber-600 dark:text-amber-400"
+                        : isTumor
+                          ? "text-rose-600 dark:text-rose-400"
+                          : "text-emerald-600 dark:text-emerald-400"
+                    }`}>
+                      {isInconclusive
+                        ? <AlertTriangle className="w-6 h-6" />
+                        : isTumor
+                          ? <AlertTriangle className="w-6 h-6" />
+                          : <CheckCircle2 className="w-6 h-6" />}
+                      {isInconclusive ? "Inconclusive" : isTumor ? "Tumor Detected" : "Normal Patterns"}
                     </div>
                     <p className="text-slate-600 dark:text-slate-300 text-sm">
-                      {isTumor
-                        ? "The AI model has identified patterns suggestive of a pancreatic tumor."
-                        : "No malignant patterns detected above the sensitivity threshold."}
+                      {isInconclusive
+                        ? "The model could not make a confident determination. This image may not be a valid pancreas CT scan."
+                        : isTumor
+                          ? "The AI model has identified patterns suggestive of a pancreatic tumor."
+                          : "No malignant patterns detected above the sensitivity threshold."}
                     </p>
                     <p className="text-slate-400 dark:text-slate-500 text-xs mt-2 italic max-w-[85%]">
                       Confidence scores are calibrated using temperature scaling.
@@ -386,16 +407,25 @@ export function SingleScanAnalysis() {
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Confidence</span>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        isInconclusive ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" :
                         result.confidence >= 0.85 ? "bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400" :
                         result.confidence >= 0.60 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" :
                         "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
                       }`}>
-                        {result.confidence >= 0.85 ? "High" : result.confidence >= 0.60 ? "Moderate" : "Low"}
+                        {isInconclusive ? "Uncertain" : result.confidence >= 0.85 ? "High" : result.confidence >= 0.60 ? "Moderate" : "Low"}
                       </span>
                     </div>
                   </div>
                 </div>
               </Card>
+
+              {/* Warning Banner — shown when API returns a warning message */}
+              {result.warning && (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-amber-700 dark:text-amber-300">{result.warning}</p>
+                </div>
+              )}
 
               {/* Heatmap */}
               {result.heatmap_png_base64 && (
@@ -417,7 +447,7 @@ export function SingleScanAnalysis() {
               )}
 
               {/* Technical Metadata */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <Card className="p-4 bg-slate-50 dark:bg-slate-900 border-none">
                   <div className="text-xs text-slate-500 mb-1">Inference Time</div>
                   <div className="font-mono text-sm text-slate-700 dark:text-slate-300">{result.inference_ms.toFixed(0)} ms</div>
@@ -425,6 +455,12 @@ export function SingleScanAnalysis() {
                 <Card className="p-4 bg-slate-50 dark:bg-slate-900 border-none">
                   <div className="text-xs text-slate-500 mb-1">Model Config</div>
                   <div className="font-mono text-sm text-slate-700 dark:text-slate-300">Ensemble</div>
+                </Card>
+                <Card className="p-4 bg-slate-50 dark:bg-slate-900 border-none">
+                  <div className="text-xs text-slate-500 mb-1">Uncertainty</div>
+                  <div className={`font-mono text-sm ${
+                    result.entropy > 0.55 ? "text-amber-600 dark:text-amber-400" : "text-slate-700 dark:text-slate-300"
+                  }`}>{result.entropy?.toFixed(3) ?? "—"}</div>
                 </Card>
               </div>
 
