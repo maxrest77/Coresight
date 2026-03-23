@@ -39,6 +39,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def home():
+    return {"status": "ok", "message": "PancreScan 3.0 API is running."}
+
 class UNetBundle:
     """Consolidated Model Bundle eliminating legacy dependencies"""
     def __init__(self):
