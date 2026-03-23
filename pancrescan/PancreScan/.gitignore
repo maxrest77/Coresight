@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+
+# Datasets
+DATASET/
+
+# Model Weights (too large for GitHub)
+*.pt
+*.pth
+*.ckpt
+
+# Outputs (keep reports/jsons, ignore checkpoints in subdirs)
+outputs/**/checkpoints/
+outputs/**/*.pt
+!outputs/demo_models/efficientnet_v2_s_fold_1_best.pt
+
+# Specific exclusions to allow for demo
+!densenet121_best.pt
+
+outputs/**/*.pth
+
+# Local Database
+pancrescan.db
+
+# System
+Thumbs.db
+Desktop.ini
