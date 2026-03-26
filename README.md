@@ -125,7 +125,7 @@ uvicorn pancre_scan_api:app --port 8000
 
 ---
 
-## ⚠️ Known Limitations & Current Problems
+##  Known Limitations & Current Problems
 
 > This model is a **research prototype only** and is not production-ready. Below is an honest breakdown of its current weaknesses.
 
@@ -155,4 +155,9 @@ uvicorn pancre_scan_api:app --port 8000
 
 ## License
 This project is developed as a clinical AI research application. For educational and research purposes only. Not certified for clinical use.
+## Authors
+
+Karthikeyan S  
+Rangeshpandian P T  
+Mutthuram S R
 
